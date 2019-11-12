@@ -4,19 +4,6 @@ Please use **one** of the two installation options, either native **or** docker 
 
 ### Native Installation
 
-* Be sure that your workstation is running Ubuntu 16.04 Xenial Xerus or Ubuntu 14.04 Trusty Tahir. [Ubuntu downloads can be found here](https://www.ubuntu.com/download/desktop).
-* If using a Virtual Machine to install Ubuntu, use the following configuration as minimum:
-  * 2 CPU
-  * 2 GB system memory
-  * 25 GB of free hard drive space
-
-  The Udacity provided virtual machine has ROS and Dataspeed DBW already installed, so you can skip the next two steps if you are using this.
-
-* Follow these instructions to install ROS
-  * [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu) if you have Ubuntu 16.04.
-  * [ROS Indigo](http://wiki.ros.org/indigo/Installation/Ubuntu) if you have Ubuntu 14.04.
-* [Dataspeed DBW](https://bitbucket.org/DataspeedInc/dbw_mkz_ros)
-  * Use this option to install the SDK on a workstation that already has ROS installed: [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ros/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default)
 * Download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
 
 ### Docker Installation
@@ -31,30 +18,31 @@ Run the docker file
 ```bash
 docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ros/ --rm -it capstone
 ```
-
-### Port Forwarding
-To set up port forwarding, please refer to the "uWebSocketIO Starter Guide" found in the classroom (see Extended Kalman Filter Project lesson).
-
-### Usage
-
-1. Clone the project repository
 ```bash
-git clone https://github.com/udacity/CarND-Capstone.git
+use docker exec -it <container-name> bash to launch roscore in a separate terminal tab for testing individual topics for inspection
 ```
+Source devel/setup.bash. rostopic and roslaunch should now be available 
 
-2. Install python dependencies
-```bash
-cd CarND-Capstone
-pip install -r requirements.txt
-```
-3. Make and run styx
-```bash
-cd ros
-catkin_make
-source devel/setup.sh
-roslaunch launch/styx.launch
-```
-4. Run the simulator
+roslaunch launch/styx.launch will start all the nodes and rostopic echo /rosout will start receiving data passed through  rospy logging 
+
+Go to styx/bridge.py and rename steering_wheel_angle_cmd to steering_wheel_angle - This is important as the current version of library has the function renamed and not allowing version downgrade
+
+Pillow needs to be upgraded to use the image classifier (every time docker is restarted)
+
+pip install pillow --upgrade
+
+
+### Traffic Sign Detector
+1. For training data - Enable the flag for data collection in get_light_state function. The data will be saved in the folders named as per light_state returned by traffic lights topics. 
+2. Downgrade keras to 2.1.2. This is required for installing keras_squeezenet
+3. Transfer learning from squeezenet model is used. Weights from squeezenet are frozen and attached to the layers created by us. To allow fine tuning, SGD with a very low learning rate and large number of epochs are used. SGD is preferred over Adam as per FastAI tutorials 
+4. Upgrade pillow if there is error when enabling the image in the simulator
+5. With 200 epochs, and 75 steps per epoch, the model is literally memorizing the training data. To reduce run time, the validation scoring is removed in fit_generator process as we do not need to generalize the data, only need to memorize the data (to complete the track course). This is similar to hard coded hand crafted features and will not scale to a different track or different lighting.
+
+### Hardware
+1. Nvidia 1080 gtx
+2. RAM - 48 GB
+3. OS - Ubuntu 18.04
 
 ### Real world testing
 1. Download [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity self-driving car.

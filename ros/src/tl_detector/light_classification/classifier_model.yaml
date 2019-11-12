@@ -1,0 +1,1466 @@
+backend: tensorflow
+class_name: Model
+config:
+  input_layers:
+  - - input_1
+    - 0
+    - 0
+  layers:
+  - class_name: InputLayer
+    config:
+      batch_input_shape: !!python/tuple
+      - null
+      - 224
+      - 224
+      - 3
+      dtype: float32
+      name: input_1
+      sparse: false
+    inbound_nodes: []
+    name: input_1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: &id003 !!python/tuple
+      - 1
+      - 1
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: &id001 !!python/tuple
+      - 3
+      - 3
+      name: conv1
+      padding: valid
+      strides: &id002 !!python/tuple
+      - 2
+      - 2
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - input_1
+        - 0
+        - 0
+        - {}
+    name: conv1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: relu_conv1
+      trainable: false
+    inbound_nodes:
+    - - - conv1
+        - 0
+        - 0
+        - {}
+    name: relu_conv1
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      name: pool1
+      padding: valid
+      pool_size: *id001
+      strides: *id002
+      trainable: false
+    inbound_nodes:
+    - - - relu_conv1
+        - 0
+        - 0
+        - {}
+    name: pool1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 16
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: &id004 !!python/tuple
+      - 1
+      - 1
+      name: fire2/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - pool1
+        - 0
+        - 0
+        - {}
+    name: fire2/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire2/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire2/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire2/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire2/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire2/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire2/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: &id006 !!python/tuple
+      - 3
+      - 3
+      name: fire2/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire2/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire2/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire2/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire2/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire2/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire2/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire2/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire2/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire2/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire2/relu_expand1x1
+        - 0
+        - 0
+        - &id005 {}
+      - - fire2/relu_expand3x3
+        - 0
+        - 0
+        - *id005
+    name: fire2/concat
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 16
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire3/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire2/concat
+        - 0
+        - 0
+        - {}
+    name: fire3/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire3/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire3/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire3/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire3/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire3/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire3/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire3/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire3/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire3/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire3/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire3/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire3/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire3/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire3/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire3/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire3/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire3/relu_expand1x1
+        - 0
+        - 0
+        - &id007 {}
+      - - fire3/relu_expand3x3
+        - 0
+        - 0
+        - *id007
+    name: fire3/concat
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      name: pool3
+      padding: valid
+      pool_size: *id001
+      strides: *id002
+      trainable: false
+    inbound_nodes:
+    - - - fire3/concat
+        - 0
+        - 0
+        - {}
+    name: pool3
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 32
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire4/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - pool3
+        - 0
+        - 0
+        - {}
+    name: fire4/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire4/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire4/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire4/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 128
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire4/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire4/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire4/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 128
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire4/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire4/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire4/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire4/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire4/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire4/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire4/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire4/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire4/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire4/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire4/relu_expand1x1
+        - 0
+        - 0
+        - &id008 {}
+      - - fire4/relu_expand3x3
+        - 0
+        - 0
+        - *id008
+    name: fire4/concat
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 32
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire5/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire4/concat
+        - 0
+        - 0
+        - {}
+    name: fire5/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire5/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire5/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire5/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 128
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire5/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire5/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire5/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 128
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire5/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire5/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire5/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire5/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire5/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire5/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire5/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire5/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire5/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire5/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire5/relu_expand1x1
+        - 0
+        - 0
+        - &id009 {}
+      - - fire5/relu_expand3x3
+        - 0
+        - 0
+        - *id009
+    name: fire5/concat
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      name: pool5
+      padding: valid
+      pool_size: *id001
+      strides: *id002
+      trainable: false
+    inbound_nodes:
+    - - - fire5/concat
+        - 0
+        - 0
+        - {}
+    name: pool5
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 48
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire6/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - pool5
+        - 0
+        - 0
+        - {}
+    name: fire6/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire6/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire6/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire6/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 192
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire6/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire6/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire6/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 192
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire6/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire6/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire6/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire6/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire6/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire6/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire6/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire6/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire6/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire6/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire6/relu_expand1x1
+        - 0
+        - 0
+        - &id010 {}
+      - - fire6/relu_expand3x3
+        - 0
+        - 0
+        - *id010
+    name: fire6/concat
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 48
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire7/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire6/concat
+        - 0
+        - 0
+        - {}
+    name: fire7/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire7/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire7/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire7/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 192
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire7/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire7/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire7/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 192
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire7/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire7/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire7/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire7/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire7/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire7/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire7/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire7/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire7/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire7/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire7/relu_expand1x1
+        - 0
+        - 0
+        - &id011 {}
+      - - fire7/relu_expand3x3
+        - 0
+        - 0
+        - *id011
+    name: fire7/concat
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire8/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire7/concat
+        - 0
+        - 0
+        - {}
+    name: fire8/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire8/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire8/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire8/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 256
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire8/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire8/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire8/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 256
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire8/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire8/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire8/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire8/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire8/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire8/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire8/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire8/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire8/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire8/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire8/relu_expand1x1
+        - 0
+        - 0
+        - &id012 {}
+      - - fire8/relu_expand3x3
+        - 0
+        - 0
+        - *id012
+    name: fire8/concat
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 64
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire9/squeeze1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire8/concat
+        - 0
+        - 0
+        - {}
+    name: fire9/squeeze1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire9/relu_squeeze1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire9/squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire9/relu_squeeze1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 256
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id004
+      name: fire9/expand1x1
+      padding: valid
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire9/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire9/expand1x1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 256
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: *id006
+      name: fire9/expand3x3
+      padding: same
+      strides: *id003
+      trainable: false
+      use_bias: true
+    inbound_nodes:
+    - - - fire9/relu_squeeze1x1
+        - 0
+        - 0
+        - {}
+    name: fire9/expand3x3
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire9/relu_expand1x1
+      trainable: false
+    inbound_nodes:
+    - - - fire9/expand1x1
+        - 0
+        - 0
+        - {}
+    name: fire9/relu_expand1x1
+  - class_name: Activation
+    config:
+      activation: relu
+      name: fire9/relu_expand3x3
+      trainable: false
+    inbound_nodes:
+    - - - fire9/expand3x3
+        - 0
+        - 0
+        - {}
+    name: fire9/relu_expand3x3
+  - class_name: Concatenate
+    config:
+      axis: 3
+      name: fire9/concat
+      trainable: false
+    inbound_nodes:
+    - - - fire9/relu_expand1x1
+        - 0
+        - 0
+        - &id013 {}
+      - - fire9/relu_expand3x3
+        - 0
+        - 0
+        - *id013
+    name: fire9/concat
+  - class_name: Dropout
+    config:
+      name: drop9
+      noise_shape: null
+      rate: 0.5
+      seed: null
+      trainable: true
+    inbound_nodes:
+    - - - fire9/concat
+        - 0
+        - 0
+        - {}
+    name: drop9
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id003
+      filters: 50
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      kernel_size: !!python/tuple
+      - 3
+      - 3
+      name: conv10
+      padding: valid
+      strides: !!python/tuple
+      - 2
+      - 2
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - drop9
+        - 0
+        - 0
+        - {}
+    name: conv10
+  - class_name: Activation
+    config:
+      activation: relu
+      name: relu_conv10
+      trainable: true
+    inbound_nodes:
+    - - - conv10
+        - 0
+        - 0
+        - {}
+    name: relu_conv10
+  - class_name: Flatten
+    config:
+      name: flatten_1
+      trainable: true
+    inbound_nodes:
+    - - - relu_conv10
+        - 0
+        - 0
+        - {}
+    name: flatten_1
+  - class_name: Dense
+    config:
+      activation: relu
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      name: dense_1
+      trainable: true
+      units: 1024
+      use_bias: true
+    inbound_nodes:
+    - - - flatten_1
+        - 0
+        - 0
+        - {}
+    name: dense_1
+  - class_name: Dropout
+    config:
+      name: dropout_1
+      noise_shape: null
+      rate: 0.6
+      seed: null
+      trainable: true
+    inbound_nodes:
+    - - - dense_1
+        - 0
+        - 0
+        - {}
+    name: dropout_1
+  - class_name: Dense
+    config:
+      activation: relu
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      name: dense_2
+      trainable: true
+      units: 512
+      use_bias: true
+    inbound_nodes:
+    - - - dropout_1
+        - 0
+        - 0
+        - {}
+    name: dense_2
+  - class_name: Dense
+    config:
+      activation: softmax
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: VarianceScaling
+        config:
+          distribution: uniform
+          mode: fan_avg
+          scale: 1.0
+          seed: null
+      kernel_regularizer: null
+      name: dense_3
+      trainable: true
+      units: 4
+      use_bias: true
+    inbound_nodes:
+    - - - dense_2
+        - 0
+        - 0
+        - {}
+    name: dense_3
+  name: model_1
+  output_layers:
+  - - dense_3
+    - 0
+    - 0
+keras_version: 2.1.2

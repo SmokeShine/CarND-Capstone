@@ -99,7 +99,8 @@ class Bridge(object):
 
     def create_steer(self, val):
         st = SteeringReport()
-        st.steering_wheel_angle_cmd = val * math.pi/180.
+        st.steering_wheel_angle = val * math.pi/180.
+        ## manuall removed _cmd as 1.1.1 library is not available
         st.enabled = True
         st.speed = self.vel
         return st
